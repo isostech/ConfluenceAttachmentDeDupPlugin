@@ -22,13 +22,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.DisposableBean;
 import org.slf4j.LoggerFactory;
 
-public class AnnotatedListener implements InitializingBean, DisposableBean {
+public class AttachmentListener implements InitializingBean, DisposableBean {
 	private String baseUrl = null;
 	String confluenceHome = null;
 
 	protected EventPublisher eventPublisher;
 
-	public AnnotatedListener(EventPublisher eventPublisher) {
+	public AttachmentListener(EventPublisher eventPublisher) {
 		this.eventPublisher = eventPublisher;
 
 		BootstrapManager bootstrapManager = (BootstrapManager) ContainerManager
@@ -155,84 +155,4 @@ public class AnnotatedListener implements InitializingBean, DisposableBean {
 		return result;
 	}
 
-	private byte[] createChecksum(String filename) throws Exception {
-		InputStream fis = new FileInputStream(filename);
-
-		byte[] buffer = new byte[1024];
-		MessageDigest complete = MessageDigest.getInstance("MD5");
-		int numRead;
-
-		do {
-			numRead = fis.read(buffer);
-			if (numRead > 0) {
-				complete.update(buffer, 0, numRead);
-			}
-		} while (numRead != -1);
-
-		fis.close();
-		return complete.digest();
-	}
-
-	// see this How-to for a faster way to convert
-	// a byte array to a HEX string
-	public String getMD5Checksum(String filename) throws Exception {
-		byte[] b = createChecksum(filename);
-		String result = "";
-
-		for (int i = 0; i < b.length; i++) {
-			result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
-		}
-		return result;
-	}
-
-	private void cleanFile(String filename) {
-		String poo1 = "<meta id=\"atlassian-token\"";
-		String poo2 = "<meta name=\"confluence-request-time\"";
-		String poo3 = "<meta name=\"ajs-atl-token\"";
-		String poo4 = "<input type=\"hidden\" name=\"os_destination\"";
-		try {
-			File inputFile = new File(filename);
-			// System.out.println("Input File: "+inputFile.getAbsolutePath());
-			if (!inputFile.isFile()) {
-				System.out.println("Parameter is not an existing file");
-				return;
-			}
-			// Construct the new file that will later be renamed to the original
-			// filename.
-			File tempFile = new File(inputFile.getAbsolutePath() + ".tmp");
-			// System.out.println("Temp File: "+tempFile.getAbsolutePath());
-			BufferedReader br = new BufferedReader(new FileReader(filename));
-			PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
-			String line = null;
-			;
-			// Read from the original file and write to the new
-			// unless content matches data to be removed.
-			while ((line = br.readLine()) != null) {
-				if ((!line.trim().contains(poo1))
-						&& (!line.trim().contains(poo2))
-						&& (!line.trim().contains(poo3))
-						&& (!line.trim().contains(poo4))) {
-					pw.println(line);
-					pw.flush();
-				}
-			}
-			pw.close();
-			br.close();
-			// Delete the original file
-			if (!inputFile.delete()) {
-				System.out.println("Could not delete file");
-				return;
-			}
-
-			// Rename the new file to the filename the original file had.
-			if (!tempFile.renameTo(inputFile))
-
-				System.out.println("Could not rename file");
-		} catch (FileNotFoundException ex) {
-			ex.printStackTrace();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-
-	}
 }

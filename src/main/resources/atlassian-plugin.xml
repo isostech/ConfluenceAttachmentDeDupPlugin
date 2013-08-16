@@ -21,19 +21,12 @@
         <context>dedupifier</context>
     </web-resource>
     
-    <!-- publish our component -->
-    <component key="myPluginComponent" class="com.isostech.confluence.plugin.attachment.AttachmentDedupifierImpl" public="true">
-       <interface>com.isostech.confluence.plugin.attachment.AttachmentDedupifier</interface> 
-    </component>
-    
-      <component key="attachmentComponent" class="com.isostech.confluence.plugin.attachment.AttachmentDedupAction" public="true">
-        <interface>com.isostech.confluence.plugin.attachment.AttachmentDedupActionIF</interface>
-    </component>
+  
     
     <!-- import from the product container -->
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
    
-    <listener name='Attachment Listener' class='com.isostech.confluence.plugin.attachment.AnnotatedListener'
+    <listener name='Attachment Listener' class='com.isostech.confluence.plugin.attachment.AttachmentListener'
               key='attachmentListener'>
         <description>Attachment Listener for attachment events within Confluence.</description>
     </listener>

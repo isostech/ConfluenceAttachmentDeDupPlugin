@@ -22,6 +22,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.DisposableBean;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Listener for attachment events.
+ * @author roberthall
+ *
+ */
 public class AttachmentListener implements InitializingBean, DisposableBean {
 	private String baseUrl = null;
 	String confluenceHome = null;
@@ -35,14 +40,12 @@ public class AttachmentListener implements InitializingBean, DisposableBean {
 				.getComponent("bootstrapManager");
 
 		confluenceHome = bootstrapManager.getConfluenceHome();
-
-		System.out.println("confluence home: " + confluenceHome);
-
+ 
 		SettingsManager settingsManager = (SettingsManager) ContainerManager
 				.getComponent("settingsManager");
 
 		baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
-		System.out.println("Constructor: invoked " + baseUrl);
+ 
 	}
 
 	/**
@@ -53,45 +56,36 @@ public class AttachmentListener implements InitializingBean, DisposableBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// register ourselves with the EventPublisher
-		eventPublisher.register(this);
-		System.out.println("Published registered");
+		eventPublisher.register(this); 
 	}
 
 	// Unregister the listener if the plugin is uninstalled or disabled.
 	@Override
 	public void destroy() throws Exception {
-		eventPublisher.unregister(this);
-		System.out.println("Unregister invoked");
+		eventPublisher.unregister(this); 
 	}
 
 	@EventListener
 	public void attachmentCreateEvent(AttachmentCreateEvent issueEvent) {
-		System.out.println("Attachment Create Event invocated");
-		if (issueEvent != null) {
-			List<Attachment> attachments = issueEvent.getAttachments();
-			for (Attachment attach : attachments) {
-				System.out.println("Add attachment: " + attach.getFileSize()
-						+ " " + attach.getDisplayTitle() + " v: "
-						+ attach.getVersion() + " FN: " + attach.getFileName()
-						+ " PATH: " + attach.getDownloadPath());
-			}
-		}
+		 
+		 
 	}
 
 	@EventListener
 	public void attachmentUpdateEvent(AttachmentUpdateEvent issueEvent) {
 		try {
-			System.out.println("Attachment Update Event invocated");
+		 
 			if (issueEvent != null) {
 				Attachment attachNew = issueEvent.getNew();
 				Attachment attachOld = issueEvent.getOld();
 
 				long cksOld = createChecksum(attachOld);
 				long cksNew = createChecksum(attachNew);
-				System.out.println(attachOld.getDisplayTitle() + " ver: "
+			/*	System.out.println(attachOld.getDisplayTitle() + " ver: "
 						+ attachOld.getVersion() + " cks: " + cksOld);
 				System.out.println(attachNew.getDisplayTitle() + " ver: "
 						+ attachNew.getVersion() + " cks: " + cksNew);
+						*/
 				// if the MD5s match
 				if (cksOld == cksNew) {
 					AttachmentManager attachmentManager = (AttachmentManager) ContainerManager
@@ -109,13 +103,13 @@ public class AttachmentListener implements InitializingBean, DisposableBean {
 
 	@EventListener
 	public void attachmentRemoveEvent(AttachmentRemoveEvent issueEvent) {
-		System.out.println("Attachment Remove Event invocated");
+		 
 	}
 
 	@EventListener
 	public void attachmentVersionRemoveEvent(
 			AttachmentVersionRemoveEvent issueEvent) {
-		System.out.println("Attachment Version Remove Event invocated");
+ 
 	}
 
 	private long createChecksum(Attachment attach) throws Exception {
@@ -138,7 +132,7 @@ public class AttachmentListener implements InitializingBean, DisposableBean {
 					fout.write(data, 0, count);
 				}
 				result = FileUtils.checksumCRC32(temp);
-				System.out.println("file: " + filename + " cks: " + result);
+			//	System.out.println("file: " + filename + " cks: " + result);
 			} catch (Exception ex) {
 				System.err.println("exception: " + ex);
 				ex.printStackTrace();
